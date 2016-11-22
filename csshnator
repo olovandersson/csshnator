@@ -29,7 +29,7 @@ def parse_args(argv):
         dest='login',
         type=str,
         default="",
-        help='Login username'
+        help='Login username to pass to all hosts used.'
     )
 
     parser.add_argument(
@@ -38,14 +38,14 @@ def parse_args(argv):
         dest='cluster_name',
         type=str,
         default="tmp",
-        help='Cluster name'
+        help='Cluster name is a collection of hosts available on ~/.csshnatorrc file'
     )
 
     parser.add_argument(
         'cluster_nodes',
         nargs='*',
         default=None,
-        help='Hostnames separated by space'
+        help='Hostnames or user@hostname to connect to, separated by space'
     )
 
     return parser.parse_args(argv)
