@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import gtk
 import sys
-import getopt
 import math
 import subprocess
+import argparse
 from configobj.configobj import ConfigObj
 from os.path import expanduser
 
@@ -19,34 +19,36 @@ def check_version():
 
 
 def parse_args(argv):
+    parser = argparse.ArgumentParser(
+        description='Open ClusterSSH-like session on Terminator'
+    )
 
-    cluster_name = ""
-    login = ""
+    parser.add_argument(
+        '-l',
+        '--login',
+        dest='login',
+        type=str,
+        default="",
+        help='Login username'
+    )
 
-    try:
-        opts, args = getopt.getopt(argv, "hl:c:", ["login=", "cluster="])
-    except getopt.GetoptError:
-        print "csshnator.py -l <login> -c <cluster>"
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == "-h":
-            print "csshnator.py -l <login> -c <cluster>"
-            sys.exit()
-        elif opt in ("-l", "--login"):
-            login = arg
-        elif opt in ("-c", "--cluster"):
-            cluster_name = arg
+    parser.add_argument(
+        '-c',
+        '--cluster-name',
+        dest='cluster_name',
+        type=str,
+        required=True,
+        help='Cluster name'
+    )
 
-    if (cluster_name == ""):
-        print "csshnator.py -l <login> -c <cluster>"
-        sys.exit(2)
-
-    return cluster_name, login
+    return parser.parse_args(argv)
 
 
 def main(argv):
     check_version()
-    cluster_name, login = parse_args(argv)
+    args = parse_args(argv)
+
+    cluster_name, login = args.cluster_name, args.login
 
     home = expanduser("~")
 
@@ -144,8 +146,8 @@ def main(argv):
                 node_ind += 1
                 command = "echo CSSHNATOR started &&"
                 command += "echo BroadCast All default At+A &&"
-                command += "echo connecting to " + login + "@" + node + " &&"  # ssh command
-                command += "ssh " + login + "@" + node  # ssh command
+                command += "echo connecting to " + login + ("@" if login else "") + node + " &&"  # ssh command
+                command += "ssh " + login + ("@" if login else "") + node  # ssh command
                 # command = "echo " + login + "@" + node  + " && bash "#for debugging
 
             order = 0
