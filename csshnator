@@ -37,8 +37,15 @@ def parse_args(argv):
         '--cluster-name',
         dest='cluster_name',
         type=str,
-        required=True,
+        default="tmp",
         help='Cluster name'
+    )
+
+    parser.add_argument(
+        'cluster_nodes',
+        nargs='*',
+        default=None,
+        help='Hostnames separated by space'
     )
 
     return parser.parse_args(argv)
@@ -56,9 +63,15 @@ def main(argv):
     height = gtk.gdk.screen_height()
 
     terminator_config = ConfigObj(home + "/.config/terminator/config")
-    cssh_config = ConfigObj(home + "/.csshnatorrc")
 
-    cluster_nodes = cssh_config[cluster_name].split()
+    if cluster_name == "tmp":
+        if args.cluster_nodes:
+            cluster_nodes = args.cluster_nodes
+        else:
+            return "No hosts to connect. Use --help for more info."
+    else:
+        cssh_config = ConfigObj(home + "/.csshnatorrc")
+        cluster_nodes = cssh_config[cluster_name].split()
     nnodes = len(cluster_nodes)
 
     # Compute geometry
@@ -176,4 +189,5 @@ def main(argv):
     # terminator_config.write()
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    ret_value = main(sys.argv[1:])
+    sys.exit(ret_value)
