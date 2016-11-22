@@ -8,43 +8,53 @@ from configobj.configobj import ConfigObj
 from os.path import expanduser
 
 
-def main(argv):
+def check_version():
     # Check terminator version first
     out = subprocess.check_output(["terminator", "-v"])
     terminator_ver = float(out.split()[1])
     if (terminator_ver < 0.98):
-        print 'Terminator version is too low'
-        print 'Please install version 0.98 or greater'
+        print "Terminator version is too low"
+        print "Please install version 0.98 or greater"
         sys.exit(2)
 
-    login = ''
-    cluster_name = ''
+
+def parse_args(argv):
+
+    cluster_name = ""
+    login = ""
 
     try:
         opts, args = getopt.getopt(argv, "hl:c:", ["login=", "cluster="])
     except getopt.GetoptError:
-        print 'csshnator.py -l <login> -c <cluster>'
+        print "csshnator.py -l <login> -c <cluster>"
         sys.exit(2)
     for opt, arg in opts:
-        if opt == '-h':
-            print 'csshnator.py -l <login> -c <cluster>'
+        if opt == "-h":
+            print "csshnator.py -l <login> -c <cluster>"
             sys.exit()
         elif opt in ("-l", "--login"):
             login = arg
         elif opt in ("-c", "--cluster"):
             cluster_name = arg
 
-    if (cluster_name == ''):
-        print 'csshnator.py -l <login> -c <cluster>'
+    if (cluster_name == ""):
+        print "csshnator.py -l <login> -c <cluster>"
         sys.exit(2)
+
+    return cluster_name, login
+
+
+def main(argv):
+    check_version()
+    cluster_name, login = parse_args(argv)
 
     home = expanduser("~")
 
     width = gtk.gdk.screen_width()
     height = gtk.gdk.screen_height()
 
-    terminator_config = ConfigObj(home + '/.config/terminator/config')
-    cssh_config = ConfigObj(home + '/.csshnatorrc')
+    terminator_config = ConfigObj(home + "/.config/terminator/config")
+    cssh_config = ConfigObj(home + "/.csshnatorrc")
 
     cluster_nodes = cssh_config[cluster_name].split()
     nnodes = len(cluster_nodes)
@@ -56,37 +66,37 @@ def main(argv):
     nrows = int(nrows)
     ncols = int(ncols)
 
-    # TODO calculate geometry better so don't need to create extra splits for
+    # TODO calculate geometry better so don"t need to create extra splits for
     # less than 3 nodes
     nrows = max(nrows, 2)  # atlease 2 rows to make geometry easier
     ncols = max(ncols, 2)  # atlease 2 columns to make geometry easier
 
     # Construct layout
-    vpane_name = 'vpane'
-    hpane_name = 'hpane'
-    term_name = 'term'
-    window_name = 'window'
+    vpane_name = "vpane"
+    hpane_name = "hpane"
+    term_name = "term"
+    window_name = "window"
 
     cssh_layout = {
-        window_name + '0': {
-            'position': '0:0',
-            'type': 'Window',
-            'parent': "",
+        window_name + "0": {
+            "position": "0:0",
+            "type": "Window",
+            "parent": "",
         }
     }
 
     # VPaned/ Horizontal splits
-    paneparent = window_name + '0'
+    paneparent = window_name + "0"
     for vpane in range(0, nrows - 1):
         panepos = height/nrows  # not used as far as I can tell
         paneratio = float(1.0/(nrows - vpane))  # 1/n ... 1/3,1/2
         panename = vpane_name + str(vpane)
         cssh_layout[panename] = {
-                'type': 'VPaned',
-                'order': min(vpane, 1),  # first pane order 0, all others order 1
-                'position': panepos,
-                'ratio': paneratio,
-                'parent': paneparent,
+                "type": "VPaned",
+                "order": min(vpane, 1),  # first pane order 0, all others order 1
+                "position": panepos,
+                "ratio": paneratio,
+                "parent": paneparent,
                 }
         paneparent = panename
 
@@ -102,11 +112,11 @@ def main(argv):
         paneratio = float(1.0/(ncols))
         panename = hpane_name + str(row) + str(0)  # hpaned00 ~ hpanedn0
         cssh_layout[panename] = {
-            'type': 'HPaned',
-            'position': panepos,
-            'ratio': paneratio,
-            'order': order,
-            'parent': paneparent,
+            "type": "HPaned",
+            "position": panepos,
+            "ratio": paneratio,
+            "order": order,
+            "parent": paneparent,
         }
         # Other panes parent is previous pane
         paneparent = panename
@@ -115,11 +125,11 @@ def main(argv):
             paneratio = float(1.0/(ncols - hpane))
             panename = hpane_name + str(row) + str(hpane)  # hpaned00 ~ hpanednn
             cssh_layout[panename] = {
-                'type': 'HPaned',
-                'position': panepos,
-                'ratio': paneratio,
-                'order': 1,
-                'parent': paneparent,
+                "type": "HPaned",
+                "position": panepos,
+                "ratio": paneratio,
+                "order": 1,
+                "parent": paneparent,
             }
             paneparent = panename
 
@@ -128,15 +138,15 @@ def main(argv):
     for row in range(0, nrows):
         for col in range(0, ncols):
             if (node_ind >= nnodes):
-                command = 'exit'  # exit the terminal if there is no node for this
+                command = "exit"  # exit the terminal if there is no node for this
             else:
                 node = cluster_nodes[node_ind]  # get the node for this terminal
                 node_ind += 1
-                command = 'echo CSSHNATOR started &&'
-                command += 'echo BroadCast All default At+A &&'
-                command += 'echo connecting to ' + login + '@' + node + ' &&'  # ssh command
-                command += 'ssh ' + login + '@' + node  # ssh command
-                # command = 'echo ' + login + '@' + node  + ' && bash '#for debugging
+                command = "echo CSSHNATOR started &&"
+                command += "echo BroadCast All default At+A &&"
+                command += "echo connecting to " + login + "@" + node + " &&"  # ssh command
+                command += "ssh " + login + "@" + node  # ssh command
+                # command = "echo " + login + "@" + node  + " && bash "#for debugging
 
             order = 0
             termparent = hpane_name + str(row) + str(col)  # parent is hpane
@@ -146,21 +156,21 @@ def main(argv):
 
             term = term_name + str(row) + str(col)
             cssh_layout[term] = {
-                'command': command,
-                'profile': 'default',
-                'type': 'Terminal',
-                'order': order,
-                'parent': termparent,
+                "command": command,
+                "profile": "default",
+                "type": "Terminal",
+                "order": order,
+                "parent": termparent,
             }
 
     # Write to config and launch terminator
-    configname = 'cssh_config_' + cluster_name
-    terminator_config['layouts'][configname] = cssh_layout
+    configname = "cssh_config_" + cluster_name
+    terminator_config["layouts"][configname] = cssh_layout
     terminator_config.write()
     subprocess.Popen(["terminator", "-l", configname])
 
     # Clean up
-    # del terminator_config['layouts']['cssh_config_tmp']
+    # del terminator_config["layouts"]["cssh_config_tmp"]
     # terminator_config.write()
 
 if __name__ == "__main__":
