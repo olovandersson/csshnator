@@ -75,8 +75,8 @@ def main(argv):
     nnodes = len(cluster_nodes)
 
     # Compute geometry
-    nrows = round(math.sqrt(nnodes))
-    ncols = math.ceil(nnodes/nrows)
+    ncols = math.floor(math.sqrt(nnodes))
+    nrows = math.ceil(nnodes/ncols)
 
     nrows = int(nrows)
     ncols = int(ncols)
@@ -172,6 +172,8 @@ def main(argv):
             term = term_name + str(row) + str(col)
             cssh_layout[term] = {
                 "command": command,
+                "group": cluster_name,
+                "title": node,
                 "profile": "default",
                 "type": "Terminal",
                 "order": order,
