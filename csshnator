@@ -33,6 +33,14 @@ def parse_args(argv):
     )
 
     parser.add_argument(
+        '-s',
+        '--show',
+        dest='show',
+        action='store_true',
+        help='Show all clusters available.'
+    )
+
+    parser.add_argument(
         '-c',
         '--cluster-name',
         dest='cluster_name',
@@ -54,10 +62,17 @@ def parse_args(argv):
 def main(argv):
     check_version()
     args = parse_args(argv)
+    home = expanduser("~")
+    cssh_config = ConfigObj(home + "/.csshnatorrc")
+
+    if args.show:
+        max_size = max([len(k) for k in cssh_config]) + 2
+        formater = "{:<" + str(max_size) + "}"
+        for key, value in cssh_config.items():
+            print formater.format(key), value
+        exit()
 
     cluster_name, login = args.cluster_name, args.login
-
-    home = expanduser("~")
 
     width = gtk.gdk.screen_width()
     height = gtk.gdk.screen_height()
@@ -70,7 +85,6 @@ def main(argv):
         else:
             return "No hosts to connect. Use --help for more info."
     else:
-        cssh_config = ConfigObj(home + "/.csshnatorrc")
         cluster_nodes = cssh_config[cluster_name].split()
     nnodes = len(cluster_nodes)
 
