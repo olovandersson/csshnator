@@ -1,12 +1,15 @@
 #!/usr/bin/env python
-import gtk
+try:
+    import gtk
+except ImportError:
+    from gi.repository import Gtk as gtk
 import sys
 import math
 import subprocess
 import argparse
 from configobj.configobj import ConfigObj
 from os.path import expanduser
-
+from shutil import copyfile
 
 def check_version():
     # Check terminator version first
@@ -76,8 +79,9 @@ def main(argv):
 
     width = gtk.gdk.screen_width()
     height = gtk.gdk.screen_height()
-
-    terminator_config = ConfigObj(home + "/.config/terminator/config")
+    config_path = home + "/.config/terminator/config_csshnator"
+    copyfile(home + "/.config/terminator/config", config_path)
+    terminator_config = ConfigObj(config_path)
 
     if cluster_name == "tmp":
         if args.cluster_nodes:
@@ -195,8 +199,9 @@ def main(argv):
     # Write to config and launch terminator
     configname = "cssh_config_" + cluster_name
     terminator_config["layouts"][configname] = cssh_layout
+    terminator_config["global_config"]["broadcast_default"] = "all"
     terminator_config.write()
-    subprocess.Popen(["terminator", "-l", configname])
+    subprocess.Popen(["terminator", "-u", "-g", config_path, "-l", configname])
 
     # Clean up
     # del terminator_config["layouts"]["cssh_config_tmp"]
