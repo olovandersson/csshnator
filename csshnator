@@ -112,7 +112,6 @@ def main(argv):
 
     cssh_layout = {
         window_name + "0": {
-            "position": "0:0",
             "type": "Window",
             "parent": "",
         }
@@ -201,11 +200,16 @@ def main(argv):
     terminator_config["layouts"][configname] = cssh_layout
     terminator_config["global_config"]["broadcast_default"] = "all"
     terminator_config.write()
-    subprocess.Popen(["terminator", "-u", "-g", config_path, "-l", configname])
+    subprocess.Popen(
+        [
+            "terminator",
+            "-u",
+            "-g", config_path,
+            "-l", configname,
+            "--title", "CSSHNator - {}".format(cluster_name)
+        ]
+    )
 
-    # Clean up
-    # del terminator_config["layouts"]["cssh_config_tmp"]
-    # terminator_config.write()
 
 if __name__ == "__main__":
     ret_value = main(sys.argv[1:])
