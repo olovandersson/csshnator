@@ -55,4 +55,7 @@ optional arguments:
   -c CLUSTER_NAME, --cluster-name CLUSTER_NAME
                         Cluster name is a collection of hosts available on
                         ~/.csshnatorrc file
+  -e EXECUTE_CMD, --execute EXECUTE_CMD
+                        The command to execute on all hosts, normally ssh
+                        which is default.
 ```

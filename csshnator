@@ -53,6 +53,15 @@ def parse_args(argv):
     )
 
     parser.add_argument(
+        '-e',
+        '--execute',
+        dest='execute_cmd',
+        type=str,
+        default="ssh",
+        help='The command to execute on all hosts, normally ssh which is default.'
+    )
+
+    parser.add_argument(
         'cluster_nodes',
         nargs='*',
         default=None,
@@ -75,7 +84,7 @@ def main(argv):
             print formater.format(key), value
         exit()
 
-    cluster_name, login = args.cluster_name, args.login
+    cluster_name, login, execute_cmd = args.cluster_name, args.login, args.execute_cmd
 
     width = gtk.gdk.screen_width()
     height = gtk.gdk.screen_height()
@@ -177,7 +186,7 @@ def main(argv):
                 command = "echo CSSHNATOR started &&"
                 command += "echo BroadCast All default At+A &&"
                 command += "echo connecting to " + login + ("@" if login else "") + node + " &&"  # ssh command
-                command += "ssh " + login + ("@" if login else "") + node  # ssh command
+                command += execute_cmd+" " + login + ("@" if login else "") + node  # ssh command
                 # command = "echo " + login + "@" + node  + " && bash "#for debugging
 
             order = 0
