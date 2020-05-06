@@ -65,3 +65,17 @@ optional arguments:
 The program requires a gtk module. For ubuntu with python 2.7 you can install
 it with "sudo apt-get install python-gtk2"
 
+An initial minimally populated terminator config file must exist located at
+~/.config/terminator/config
+Here's an example of a config file to start with:
+```
+[global_config]
+  enabled_plugins = LaunchpadCodeURLHandler, APTURLHandler, LaunchpadBugURLHandler
+[keybindings]
+[layouts]
+  [[default]]
+[plugins]
+[profiles]
+  [[default]]
+```
+
