@@ -59,3 +59,9 @@ optional arguments:
                         The command to execute on all hosts, normally ssh
                         which is default.
 ```
+
+## Troubeshooting
+
+The program requires a gtk module. For ubuntu with python 2.7 you can install
+it with "sudo apt-get install python-gtk2"
+
